@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My NotePad</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <div class="Light-Dark">
+        <span class="material-symbols-outlined" id="Light-dark">
+          clear_night
+        </span>
+      </div>
+
+     
+     
+      <div class="sidebar">
+        <div class="hamburger" id="hamburger">
+          <span class="material-symbols-outlined">menu</span>
+        </div>
+        
+        
+        <div class="app-name">
+          <h2>My NotePad</h2>
+        </div>
+        <div class="notes">
+          <div class="current-note">
+            <div class="c-note">
+              <div class="note-title">
+                <h4>Sunday School</h4>
+                <p>Memory verse for today...</p>
+                <div class="Date-Time">
+                  <p id="Time">11:31Am</p>
+                  <p id="Date">dd/mm/yyyy</p>
+                </div>
+              </div>
+              <div class="close-note">
+                <span class="material-symbols-outlined"> delete_forever </span>
+              </div>
+            </div>
+          </div>
+          <div class="saved-note">
+            <div class="s-note">
+              <div class="note-title">
+                <h4>Sunday School</h4>
+                <p id="excerpt">Memory verse for today...</p>
+                <div class="Date-Time">
+                  <p id="Time">11:31Am</p>
+                  <p id="Date">dd/mm/yyyy</p>
+                </div>
+              </div>
+              <div class="close-note">
+                <span class="material-symbols-outlined"> delete_forever </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="search-here">
+          <form action="" method="get">
+            <div class="searchbar">
+              <input
+                type="text"
+                name="q"
+                id="searchbar"
+                placeholder="Search Here"
+              />
+            </div>
+            <!-- <div class="search-button">
+              <button><span class="material-symbols-outlined">
+                search
+                </span></button>
+            </div> -->
+          </form>
+        </div>
+      </div>
+      <div class="single-note-div">
+        <div class="single-note">
+          <div class="Snote-title">
+            <h4 id="currentNoteTitle">No Title</h4>
+          </div>
+
+          <div class="toolbar">
+            <button class="bold" onclick="toggleBold()">
+              <p>B</p>
+            </button>
+            <button class="underline" onclick="toggleUnderline()">
+              <p>U</p>
+            </button>
+            <button class="italic" onclick="toggleItalic()">
+              <p>I</p>
+            </button>
+            <button class="align-left" onclick="alignLeft()">
+              <span class="material-symbols-outlined"
+                >align_horizontal_left</span
+              >
+            </button>
+            <button class="align-center" onclick="alignCenter()">
+              <span class="material-symbols-outlined"
+                >align_horizontal_center</span
+              >
+            </button>
+            <button class="align-right" onclick="alignRight()">
+              <span class="material-symbols-outlined"
+                >align_horizontal_right</span
+              >
+            </button>
+          </div>
+
+          <div class="live-note">
+            <label for="MyNotePad">Type here</label>
+
+            <textarea id="content" name="content" autofocus> </textarea>
+          </div>
+          <div class="save">
+            <button>Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const saveButton = document.querySelector(".save button");
+      saveButton.addEventListener("click", saveNote);
+      const toolbarButtons = document.querySelectorAll(".toolbar button");
+
+      // Function to save a new note
+      function saveNote() {
+        const content = document.getElementById("content").value;
+        const title = promptForTitleAndSave();
+
+        const currentTime = new Date();
+        const time = currentTime.toLocaleTimeString();
+        const date = currentTime.toLocaleDateString();
+
+        // Save the note to localStorage
+        const note = { title, time, date, content };
+        localStorage.setItem(title, JSON.stringify(note));
+
+        // Clear content in the textarea
+        document.getElementById("content").value = "";
+
+        // Add the note to sidebar immediately after saving
+        addNoteToSidebar(title, time, date, content);
+
+        // Add a click event listener to the note to display its content in the textarea
+        addClickEventToNote();
+      }
+
+      // Function to prompt the user for a title and save the note
+      function promptForTitleAndSave() {
+        let title = prompt("Enter a title for your note:", "No Title");
+
+        // Check if the user canceled the prompt or left it empty
+        if (title === null || title.trim() === "") {
+          title = "No Title"; // Set a default title if the user didn't provide one
+        }
+
+        return title;
+      }
+
+      function addNoteToSidebar(title, time, date, content) {
+        const sidebar = document.querySelector(".notes");
+
+        const savedNote = document.createElement("div");
+        savedNote.className = "saved-note";
+
+        const noteTitle = document.createElement("div");
+        noteTitle.className = "note-title";
+
+        // Split the content into words
+        const words = content.split(" ");
+        // Get the first 4 words
+        const firstThreeWords = words.slice(0, 3).join(" ");
+
+        noteTitle.innerHTML = `
+    <h4>${title}</h4>
+    <p>${firstThreeWords}...</p> <!-- Display only the first 4 words -->
+    <div class="Date-Time">
+      <p>${time}</p>
+      <p>${date}</p>
+    </div>
+  `;
+
+        const closeNote = document.createElement("div");
+        closeNote.className = "close-note";
+        closeNote.innerHTML = `
+    <span class="material-symbols-outlined"> delete_forever </span>
+  `;
+        closeNote.addEventListener("click", () => {
+          // Handle delete note functionality
+          // You can remove the note from the sidebar and localStorage here
+          savedNote.remove();
+        });
+
+        savedNote.appendChild(noteTitle);
+        savedNote.appendChild(closeNote);
+
+        // Add the full content as a data attribute for later use
+        savedNote.setAttribute("data-full-content", content);
+
+        // Add the note to the top of the sidebar
+        sidebar.insertBefore(savedNote, sidebar.firstChild);
+
+        // Add a click event listener to the note to display its content in the textarea
+        addClickEventToNote();
+      }
+
+      function loadNotesFromLocalStorage() {
+        const sidebar = document.querySelector(".notes");
+        sidebar.innerHTML = ""; // Clear the sidebar
+
+        for (let i = 0; i < localStorage.length; i++) {
+          const noteKey = localStorage.key(i);
+          const note = JSON.parse(localStorage.getItem(noteKey));
+          addNoteToSidebar(note.title, note.time, note.date, note.content);
+        }
+      }
+
+      function addClickEventToNote() {
+        const savedNotes = document.querySelectorAll(".saved-note");
+        savedNotes.forEach((note) => {
+          note.addEventListener("click", () => {
+            const fullContent = note.getAttribute("data-full-content");
+            const title = note.querySelector(".note-title h4").textContent;
+
+            // Set the title in the single note
+            document.getElementById("currentNoteTitle").textContent = title;
+
+            // Set the content in the textarea
+            document.getElementById("content").value = fullContent;
+          });
+        });
+      }
+      // Call the function to load notes when the page loads
+      loadNotesFromLocalStorage();
+
+      // // // Function to toggle the active state of a button
+      // function toggleButtonActive(button) {
+      //   button.classList.toggle("active");
+      // }
+
+      // // Add click event listeners to toolbar buttons
+      // toolbarButtons.forEach((button) => {
+      //   button.addEventListener("click", () => {
+      //     toggleButtonActive(button);
+      //     removeActiveStateExcept(button);
+      //   });
+      // });
+
+      // // Function to remove active state from all toolbar buttons except the clicked one
+      // function removeActiveStateExcept(clickedButton) {
+      //   toolbarButtons.forEach((button) => {
+      //     if (button !== clickedButton && button.classList.contains("active")) {
+      //       button.classList.remove("active");
+      //     }
+      //   });
+      // }
+
+      // function for each toolbar
+      //       function toggleBold() {
+      //         document.getElementById("content").style.fontWeight = "bold";
+      //         toggleButtonActive("bold");
+
+      // }
+
+      //       function toggleUnderline() {
+      //         document.getElementById("content").style.textDecoration = "underline";
+      //         toggleButtonActive("underline");
+
+      //       }
+
+      //       function toggleItalic() {
+      //         document.getElementById("content").style.fontStyle = "italic";
+      //         toggleButtonActive("italic");
+      //       }
+
+      //toolbar functions
+
+      function toggleBold() {
+        let content = document.getElementById("content");
+        let button = document.querySelector(".bold");
+
+        if (content.style.fontWeight === "bold") {
+          content.style.fontWeight = "normal";
+          button.classList.remove("active");
+        } else {
+          content.style.fontWeight = "bold";
+          button.classList.add("active");
+        }
+      }
+
+      function toggleUnderline() {
+        let content = document.getElementById("content");
+        let button = document.querySelector(".underline");
+
+        if (content.style.textDecoration === "underline") {
+          content.style.textDecoration = "none";
+          button.classList.remove("active");
+        } else {
+          content.style.textDecoration = "underline";
+          button.classList.add("active");
+        }
+      }
+
+      function toggleItalic() {
+        let content = document.getElementById("content");
+        let button = document.querySelector(".italic");
+
+        if (content.style.fontStyle === "italic") {
+          content.style.fontStyle = "normal";
+          button.classList.remove("active");
+        } else {
+          content.style.fontStyle = "italic";
+          button.classList.add("active");
+        }
+      }
+
+      function alignLeft() {
+        document.getElementById("content").style.textAlign = "left";
+        toggleButtonActive("align-left");
+      }
+
+      function alignCenter() {
+        document.getElementById("content").style.textAlign = "center";
+        toggleButtonActive("align-center");
+      }
+
+      function alignRight() {
+        document.getElementById("content").style.textAlign = "right";
+        toggleButtonActive("align-right");
+      }
+
+      // Add an input event listener to the search input
+      const searchInput = document.getElementById("searchbar");
+      searchInput.addEventListener("input", handleSearch);
+
+      function handleSearch() {
+        const searchKeyword = searchInput.value.toLowerCase(); // Convert search keyword to lowercase for case-insensitive search
+        const savedNotes = document.querySelectorAll(".saved-note");
+
+        savedNotes.forEach((note) => {
+          const noteTitle = note
+            .querySelector(".note-title h4")
+            .textContent.toLowerCase();
+          const noteContent = note
+            .querySelector(".note-title p")
+            .textContent.toLowerCase();
+
+          // Check if the note title or content contains the search keyword
+          if (
+            noteTitle.includes(searchKeyword) ||
+            noteContent.includes(searchKeyword)
+          ) {
+            note.style.display = "flex"; // Display notes that match
+            note.style.color = "yellow";
+          } else {
+            note.style.display = "none"; // Hide notes that don't match
+          }
+        });
+      }
+
+      // Clear the search input field when the user presses Enter (optional)
+      searchInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          searchInput.value = "";
+          handleSearch(); // Reset the search results
+        }
+      });
+
+      function toggleLightDarkMode() {
+        const body = document.body;
+        const sidebar = document.querySelector(".sidebar");
+        const singleNote = document.querySelector(".single-note-div");
+
+        // Toggle the 'dark-mode' class on the body element
+        body.classList.toggle("dark-mode");
+
+        // Toggle the 'dark-sidebar' class on the sidebar element
+        sidebar.classList.toggle("dark-sidebar");
+
+        // Toggle the 'dark-single-note-div' class on the singleNote element
+        singleNote.classList.toggle("dark-single-note-div");
+
+        // Update the icon based on the current mode
+        const lightDarkIcon = document.getElementById("Light-dark");
+        const currentMode = body.classList.contains("dark-mode")
+          ? "dark"
+          : "light";
+        lightDarkIcon.textContent =
+          currentMode === "dark" ? "wb_sunny" : "clear_night";
+      }
+      
+      // Add a click event listener to the Light/Dark Mode Toggle button
+      const lightDarkButton = document.getElementById("Light-dark");
+      lightDarkButton.addEventListener("click", toggleLightDarkMode);
+
+//      // JavaScript for toggling the sidebar
+// const hamburgerIcon = document.getElementById("hamburger");
+// const sidebar = document.querySelector(".sidebar");
+
+// hamburgerIcon.addEventListener("click", () => {
+//   sidebar.classList.toggle("sidebar-hidden"); // Add a class to hide the sidebar
+// });
+
+// // JavaScript for closing the sidebar when a note is clicked (if needed)
+// const savedNotes = document.querySelectorAll(".saved-note");
+// savedNotes.forEach((note) => {
+//   note.addEventListener("click", () => {
+//     sidebar.classList.add("sidebar-hidden");
+//   });
+// });
+ 
+
+
+
+    </script>
+  </body>
+</html>
